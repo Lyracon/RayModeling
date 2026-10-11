@@ -1,0 +1,33 @@
+#work-area {
+	width: 98%;
+	max-width: calc(98vh*16/9);
+	border: 3px #0f0f0f double;
+	background-color: #ffffff;
+}
+
+#border {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100vw;
+	height: 100vh;
+	aspect-ratio: 16 / 9;
+}
+
+body {
+	color: white;
+	background-color: #333333;
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+}
+
+#log {
+	position: absolute;
+	animation: test 2s infinite;
+	animation-direction: alternate-reverse;
+	animation-timing-function: linear;
+}
