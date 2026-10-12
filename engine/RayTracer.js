@@ -42,12 +42,12 @@ export default class RayTracer {
 		} else {
 
 			const reflectedRay = this.getReflectedRay(ray);
-			this.traceRay(path, reflectedRay, [...mediums]);
+			// this.traceRay(path, reflectedRay, [...mediums]);
 
 			const nextMediums = [...mediums]
 			const isOut = this.updateMediums(nextMediums, ray.intersection.object);
 			const refractedRay = this.getRefractedRay(ray, nextMediums, isOut);
-			this.traceRay(path, refractedRay, nextMediums);
+			// this.traceRay(path, refractedRay, nextMediums);
 		}
 	}
 

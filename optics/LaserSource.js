@@ -19,7 +19,7 @@ export default class LaserSource {
 
     sinRotate() {
         this.counter -= 0.01
-        const rotation = Math.sin(this.counter)*0.1 + 0.21;
+        const rotation = Math.sin(this.counter)*0.6;
         this.setRotation(rotation);
     }
 

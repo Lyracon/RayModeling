@@ -16,6 +16,7 @@ export default class Rendering {
 		}
 
 		for (const source of scene.sources) {
+			this.rayTracer.clear(source);
 
 			source.draw(this.ctx);
 			this.rayTracer.tracePath(source);
@@ -24,7 +25,6 @@ export default class Rendering {
 				ray.draw(this.ctx);
 			}
 
-			this.rayTracer.clear(source);
 		}
 	}
 }

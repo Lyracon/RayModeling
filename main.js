@@ -6,6 +6,7 @@ import Material from "./optics/Material.js"
 import Scene from "./engine/Scene.js"
 import App from "./engine/App.js"
 import LaserSource from "./optics/LaserSource.js"
+import Lense from "./optics/Lense.js"
 
 const canvas = document.querySelector("#work-area");
 const ctx = canvas.getContext("2d");
@@ -104,12 +105,17 @@ shape3.addPoint(505, 175);
 // RED TRIANGLE
 // ============================================================
 
-const shape4 = new Shape(red);
+// const shape4 = new Shape(red);
 
-shape4.addPoint(380, 510);
-shape4.addPoint(500, 350);
-shape4.addPoint(710, 470);
+// shape4.addPoint(380, 510);
+// shape4.addPoint(510, 470);
+// shape4.addPoint(300, 350);
+// shape4.addPoint(500, 300);
 
+// constructor(position, width, focusLegth, type, material) {
+
+const shape4 = new Lense(new Vector2D(400, 400), new Vector2D(1, 0), 100, 0, 65, null, red);
+const shape5 = new Lense(new Vector2D(300, 360), new Vector2D(1, 0), 100, 0, 20, null, red);
 
 // ============================================================
 // GLASS PRISM
@@ -190,28 +196,30 @@ smallMirror2.addPoint(905, 575);
 smallMirror2.addPoint(765, 615);
 
 
-// const marker = new Rectangle(
-// 	new Vector2D(500, 600),
-// 	15, 15,
-// 	new Material({color: "#ff0000"})
-// );
-// marker.tag = "marker";
+const marker = new Rectangle(
+	new Vector2D(500, 600),
+	15, 15,
+	new Material({color: "#ff0000"})
+);
+marker.tag = "marker";
 
 
 
-const laserSource = new LaserSource(new Vector2D(125, 345), new Vector2D(0.1, 5), 1);
+const laserSource = new LaserSource(new Vector2D(125, 345), new Vector2D(1, 0), 1);
 
+app.scene.addObject(marker);
 
-app.scene.addObject(shape1);
-app.scene.addObject(shape2);
-app.scene.addObject(shape3);
-app.scene.addObject(shape4);
+// app.scene.addObject(shape1);
+// app.scene.addObject(shape2);
+// app.scene.addObject(shape3);
+// app.scene.addObject(shape4);
+app.scene.addObject(shape5);
 
-app.scene.addObject(prism);
-app.scene.addObject(goldTriangle);
-app.scene.addObject(waterShape);
-app.scene.addObject(bottomWall);
-app.scene.addObject(topWall);
+// app.scene.addObject(prism);
+// app.scene.addObject(goldTriangle);
+// app.scene.addObject(waterShape);
+// app.scene.addObject(bottomWall);
+// app.scene.addObject(topWall);
 
 app.scene.addSource(laserSource);
 

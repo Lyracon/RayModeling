@@ -11,8 +11,9 @@ export default class App {
 
 	update(dt) {
 		this.rayTracer.update(dt);
-		// this.rayTracer.findClosestIntersection(this.scene.sources.rayPath.rays[0]);
-		// this.scene.objects[1].setPosition(this.scene.rays[0].intersection.point);
+		if (this.scene.sources[0].rayPath.rays.length > 0) {
+			this.scene.objects[0].setPosition(this.scene.sources[0].rayPath.rays[0].intersection.point);
+		}
 		this.scene.sources[0].sinRotate();
 	}
 
