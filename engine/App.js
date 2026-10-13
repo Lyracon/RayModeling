@@ -11,10 +11,12 @@ export default class App {
 
 	update(dt) {
 		this.rayTracer.update(dt);
-		if (this.scene.sources[0].rayPath.rays.length > 0) {
-			this.scene.objects[0].setPosition(this.scene.sources[0].rayPath.rays[0].intersection.point);
-		}
-		this.scene.sources[0].sinRotate();
+		// if (this.scene.sources[0].rayPath.rays.length > 0) {
+			// this.scene.objects[0].setPosition(this.scene.sources[0].rayPath.rays[0].intersection.point);
+		// }
+		// this.scene.objects[0].setPosition(this.scene.sources[0].rayPath.rays[0].intersection.point);
+		this.scene.sources[0].move();
+		this.scene.sources[1].move();
 	}
 
 	draw() {

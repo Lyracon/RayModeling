@@ -26,8 +26,63 @@ export default class Lense extends Shape {
         this.setAngles();
     }
 
-    getIntersection(ray) {
-        let closestT = Infinity;
+    checkIntersection(A, B, circle, ray, t) {
+
+        if (t <= 0) {
+            return new Intersection();
+        }
+
+        const cA = new Vector2D();
+        cA.x = A.x - circle.x;
+        cA.y = A.y - circle.y;
+
+        const cB = new Vector2D();
+        cB.x = B.x - circle.x;
+        cB.y = B.y - circle.y;
+
+        const I = new Vector2D();
+        I.x = ray.origin.x + ray.direction.x * t;
+        I.y = ray.origin.y + ray.direction.y * t;
+
+        const cI = new Vector2D();
+        cI.x = I.x - circle.x;
+        cI.y = I.y - circle.y;
+
+        if (Vector2D.vec(cI, cA) < 0 & Vector2D.vec(cI, cB) > 0) {
+            cI.normolize();
+            
+            return new Intersection(
+                {x: 0, y: 0},
+                cI,
+                t,
+                null
+            )
+        }
+
+        return new Intersection();
+    }
+
+    getSideIntersection(ray, positive) {
+
+        let A = new Vector2D();
+        A.x = this.position.x + this.direction.y * this.width/2;
+        A.y = this.position.y - this.direction.x * this.width/2;
+
+        let B = new Vector2D();
+        B.x = this.position.x - this.direction.y * this.width/2;
+        B.y = this.position.y + this.direction.x * this.width/2;
+        
+        const circle = new Vector2D();
+        if (positive) {
+            circle.x = this.position.x + this.direction.x * this.delta;
+            circle.y = this.position.y + this.direction.y * this.delta;
+            const temp = A;
+            A = B;
+            B = temp; 
+        } else {
+            circle.x = this.position.x - this.direction.x * this.delta;
+            circle.y = this.position.y - this.direction.y * this.delta;
+        }
 
         const dx = ray.direction.x;
         const dy = ray.direction.y;
@@ -35,48 +90,63 @@ export default class Lense extends Shape {
         const ox = ray.origin.x;
         const oy = ray.origin.y;
 
-        const px = this.position.x;
-        const py = this.position.y;
 
         const R = this.radius; 
 
-        const b = 2 * ((ox - px)*dx + (oy - py)*dy);
-        const c = (ox-px)*(ox-px) + (oy-py)*(oy-py) - R*R;
+        const b = 2 * ((ox - circle.x)*dx + (oy - circle.y)*dy);
+        const c = (ox-circle.x)*(ox-circle.x) + (oy-circle.y)*(oy-circle.y) - R*R;
 
         const D = b*b - 4*c;
         if (D <= 0) {
-            const intersection = new Intersection();
-            return intersection;
+            return Infinity;
         } 
 
         let t1 = (-b + Math.sqrt(D)) / 2;
         let t2 = (-b - Math.sqrt(D)) / 2;
 
-        console.log(t1, t2);
+        const intersection1 = this.checkIntersection(A, B, circle, ray, t1);
+        const intersection2 = this.checkIntersection(A, B, circle, ray, t2);
 
-        if (t1 <= 0 && t2 <= 0) {
-            return new Intersection();
+        if (intersection1.distance < intersection2.distance) {
+            return intersection1;
+        } else{
+            return intersection2;
+        }
+    }
+
+    getIntersection(ray) {
+        let closestIntersection =  new Intersection();
+
+        const intersection1 = this.getSideIntersection(ray, true);
+        const intersection2 = this.getSideIntersection(ray, false);
+
+        if (intersection1.distance < intersection2.distance) {
+            closestIntersection = intersection1;
         } else {
-            t1 = Math.max(0, t1);
-            t2 = Math.max(0, t2);
+            closestIntersection = intersection2;
         }
 
-        closestT = Math.min(t1, t2);
-
         const intersectionPoint = {
-            x: ox + dx * closestT,
-            y: oy + dy * closestT
+            x: ray.origin.x + ray.direction.x * closestIntersection.distance,
+            y: ray.origin.y + ray.direction.y * closestIntersection.distance
         };
 
+        if (closestIntersection.normal) {
+            const dotProduct = Vector2D.dot(ray.direction, closestIntersection.normal); 
+            if (dotProduct > 0) {
+                closestIntersection.normal.x *= -1;
+                closestIntersection.normal.y *= -1;
+            }
+        };
+        
         const intersection = new Intersection(
             intersectionPoint,
-            new Vector2D(1, 0),
-            closestT,
+            closestIntersection.normal,
+            closestIntersection.distance,
             this
         );
 
         return intersection;
-
     }
 
     setRadius() {
@@ -92,20 +162,19 @@ export default class Lense extends Shape {
     setDelta() {
         const R = this.radius;
         const delta = Math.sqrt(Math.abs(R*R - this.width*this.width/4));
-        // console.log(delta);
         this.delta = delta;
     }
 
     setAngles() {
         let d = this.direction;
         const alpha = Math.asin(this.width/(this.radius*2));
-        const o1 = Math.acos(d.x);
-        const o2 = Math.acos(-d.x);
+        const angle = Math.asin(d.y);
 
-        this.angles[0] = o1 - alpha;
-        this.angles[1] = o1 + alpha;
-        this.angles[2] = o2 - alpha;
-        this.angles[3] = o2 + alpha;
+        this.angles[0] = angle - alpha;
+        this.angles[1] = angle + alpha;
+        this.angles[2] = angle - alpha + Math.PI;
+        this.angles[3] = angle + alpha + Math.PI;
+
     } 
 
     draw(ctx) {
@@ -124,7 +193,7 @@ export default class Lense extends Shape {
           this.position.y + this.direction.y * this.delta,
           this.radius,
           this.angles[2],
-          this.angles[3]
+          this.angles[3],
         );
 
         ctx.closePath();

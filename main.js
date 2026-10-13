@@ -41,9 +41,9 @@ darkMirror.refractiveIndex = 1.0;
 
 const glass = new Material();
 glass.color = "rgb(120, 185, 214, 0.5)";
-glass.reflectivity = 0.1;
-glass.transparency = 0.6;
-glass.refractiveIndex = 1.5;
+glass.reflectivity = 0;
+glass.transparency = 0.95;
+glass.refractiveIndex = 2.5;
 
 const water = new Material();
 water.color = "rgb(15, 10, 150, 0.7)";
@@ -52,10 +52,10 @@ water.transparency = 0.9;
 water.refractiveIndex = 1.333;
 
 const red = new Material();
-red.color = "rgb(255, 50, 50, 0.5)";
-red.reflectivity = 0.15;
-red.transparency = 0.45;
-red.refractiveIndex = 1.4;
+red.color = "rgb(255, 121, 155, 0.9)";
+red.reflectivity = 0.1;
+red.transparency = 0.9;
+red.refractiveIndex = 2.0;
 
 const gold = new Material();
 gold.color = "#f2b85a";
@@ -105,17 +105,19 @@ shape3.addPoint(505, 175);
 // RED TRIANGLE
 // ============================================================
 
-// const shape4 = new Shape(red);
+const shape4 = new Shape(red);
 
-// shape4.addPoint(380, 510);
-// shape4.addPoint(510, 470);
-// shape4.addPoint(300, 350);
-// shape4.addPoint(500, 300);
+shape4.addPoint(380, 710);
+shape4.addPoint(510, 670);
+shape4.addPoint(600, 550);
+shape4.addPoint(500, 500);
 
 // constructor(position, width, focusLegth, type, material) {
+// const shape4 = new Lense(new Vector2D(400, 400), new Vector2D(1, 0), width, deepth, focus, null, red);
+const shape5 = new Lense(new Vector2D(300, 360), new Vector2D(1, 0), 500, 0, 196, null, glass);
 
-const shape4 = new Lense(new Vector2D(400, 400), new Vector2D(1, 0), 100, 0, 65, null, red);
-const shape5 = new Lense(new Vector2D(300, 360), new Vector2D(1, 0), 100, 0, 20, null, red);
+console.log(shape5.radius, shape5.delta)
+
 
 // ============================================================
 // GLASS PRISM
@@ -179,7 +181,6 @@ topWall.addPoint(0, 35);
 
 
 
-
 const smallMirror = new Shape(mirror);
 
 smallMirror.addPoint(330, 290);
@@ -196,32 +197,41 @@ smallMirror2.addPoint(905, 575);
 smallMirror2.addPoint(765, 615);
 
 
-const marker = new Rectangle(
-	new Vector2D(500, 600),
-	15, 15,
-	new Material({color: "#ff0000"})
-);
+// const marker = new Rectangle(
+// 	new Vector2D(300+196+40, 360),
+// 	5, 5,
+// 	new Material({color: "#00aaf0"})
+// );
+
+const marker = new Shape(wall);
+
+marker.addPoint(536, 360+7);
+marker.addPoint(536+7, 360);
+marker.addPoint(536, 360-7);
+marker.addPoint(536-7, 360);
+
 marker.tag = "marker";
 
-
-
-const laserSource = new LaserSource(new Vector2D(125, 345), new Vector2D(1, 0), 1);
+const laserSource = new LaserSource(new Vector2D(200, 340), new Vector2D(1, 0), 1);
+const laserSource2 = new LaserSource(new Vector2D(200, 380), new Vector2D(1, 0), 1);
+laserSource2.step *= -1;
 
 app.scene.addObject(marker);
 
-// app.scene.addObject(shape1);
-// app.scene.addObject(shape2);
-// app.scene.addObject(shape3);
-// app.scene.addObject(shape4);
+app.scene.addObject(shape1);
+app.scene.addObject(shape2);
+app.scene.addObject(shape3);
+app.scene.addObject(shape4);
 app.scene.addObject(shape5);
 
 // app.scene.addObject(prism);
 // app.scene.addObject(goldTriangle);
-// app.scene.addObject(waterShape);
+app.scene.addObject(waterShape);
 // app.scene.addObject(bottomWall);
 // app.scene.addObject(topWall);
 
 app.scene.addSource(laserSource);
+app.scene.addSource(laserSource2);
 
 
 function mainLoop(timestamp) {
