@@ -9,7 +9,7 @@ export default class LaserSource {
 		this.power = power;
 		this.rayPath = new Path(position, direction, 1, 0);
         this.counter = 0;
-        this.step = 0.5;
+        this.step = -0.003;
 	}
 
 
@@ -19,11 +19,8 @@ export default class LaserSource {
     }
 
     move() {
-        if ((this.step > 0 & this.counter < -98) || (this.step < 0 & this.counter > 97)) {
-            this.step *= -1;
-        }
         this.counter -= this.step;
-        this.position.y = this.counter + 360;
+        this.position.y = Math.sin(this.counter)*100 + 360;
     }
 
 	draw(ctx) {

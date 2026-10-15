@@ -4,5 +4,7 @@ export default class Intersection {
 		this.normal = normal;
 		this.distance = distance;
 		this.object = object;
+		this.reflectance = 0;
+		this.transmittance = 0;
 	}
 }

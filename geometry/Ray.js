@@ -32,7 +32,7 @@ export default class Ray {
             );
         }
 
-        ctx.strokeStyle = `rgb(255, 25, 25, ${this.power})`;
+        ctx.strokeStyle = `rgb(255, 25, 25, ${this.power*this.power})`;
         ctx.lineWidth = 3;
         ctx.stroke();
     }

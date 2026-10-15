@@ -1,20 +1,41 @@
-#work-area {
-	width: 98%;
-	max-width: calc(98vh*16/9);
+#work-canvas {
+	width: 59vw;
+	max-width: calc(98vh*4/3);
 	border: 3px #0f0f0f double;
 	background-color: #ffffff;
+	aspect-ratio: 4/3;
 }
 
-#border {
+#scene {
 	position: absolute;
-	top: 0;
-	left: 0;
+	z-index: 1;
+	top: 50%;
+	left: 50%;
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	width: 100vw;
+	transform: translate(-50%, -50%);
+	outline: blue solid 2px;
+}
+
+.toolbox {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 20vw;
+	max-width: 300px;
 	height: 100vh;
-	aspect-ratio: 16 / 9;
+	background-color: #ff000052;
+}
+
+.inspector {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 20vw;
+	max-width: 300px;
+	height: 100vh;
+	background-color: #ff000052;
 }
 
 body {

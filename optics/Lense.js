@@ -48,7 +48,7 @@ export default class Lense extends Shape {
         cI.x = I.x - circle.x;
         cI.y = I.y - circle.y;
 
-        if (Vector2D.vec(cI, cA) < 0 & Vector2D.vec(cI, cB) > 0) {
+        if (Vector2D.vec(cI, cA) <= 0 & Vector2D.vec(cI, cB) >= 0) {
             cI.normolize();
             
             return new Intersection(
@@ -150,12 +150,12 @@ export default class Lense extends Shape {
     }
 
     setRadius() {
-        let R = this.focusLegth * 2 * (this.material.refractiveIndex - 1);
+        let R = this.focusLegth * 2 * (this.material.n - 1);
 
         if (this.width > R*2) {
-            this.focusLegth = this.width / (4 * (this.material.refractiveIndex - 1));
+            this.focusLegth = this.width / (4 * (this.material.n - 1));
         }
-        R = this.focusLegth * 2 * (this.material.refractiveIndex - 1);
+        R = this.focusLegth * 2 * (this.material.n - 1);
         this.radius = R + 0.0001;
     }
 

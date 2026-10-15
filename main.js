@@ -8,11 +8,14 @@ import App from "./engine/App.js"
 import LaserSource from "./optics/LaserSource.js"
 import Lense from "./optics/Lense.js"
 
-const canvas = document.querySelector("#work-area");
+const canvas = document.querySelector("#work-canvas");
 const ctx = canvas.getContext("2d");
 
+// canvas.width = 1280;
+// canvas.height = 720;
+
 canvas.width = 1280;
-canvas.height = 720;
+canvas.height = 1280 * 3/4;
 
 const fixedDt = 1 / 60;
 let accumulator = 0;
@@ -33,33 +36,37 @@ const mirror = new Material();
 mirror.color = "#b8c0cc";
 mirror.reflectivity = 0.9;
 mirror.refractiveIndex = 1.0;
+mirror.n = 10;
 
 const darkMirror = new Material();
 darkMirror.color = "#30343b";
 darkMirror.reflectivity = 0.8;
-darkMirror.refractiveIndex = 1.0;
+darkMirror.n = 5.6;
 
 const glass = new Material();
 glass.color = "rgb(120, 185, 214, 0.5)";
-glass.reflectivity = 0;
+glass.reflectivity = 0.05;
 glass.transparency = 0.95;
-glass.refractiveIndex = 2.5;
+glass.absorption = 0.5
+glass.n = 1.5;
 
 const water = new Material();
 water.color = "rgb(15, 10, 150, 0.7)";
 water.reflectivity = 0.05;
 water.transparency = 0.9;
 water.refractiveIndex = 1.333;
+water.n = 1.33;
 
 const red = new Material();
 red.color = "rgb(255, 121, 155, 0.9)";
 red.reflectivity = 0.1;
 red.transparency = 0.9;
-red.refractiveIndex = 2.0;
+red.n = 1.76;
 
 const gold = new Material();
 gold.color = "#f2b85a";
 gold.reflectivity = 0.75;
+gold.n = 3.6;
 
 const wall = new Material();
 wall.color = "#252932";
@@ -114,7 +121,7 @@ shape4.addPoint(500, 500);
 
 // constructor(position, width, focusLegth, type, material) {
 // const shape4 = new Lense(new Vector2D(400, 400), new Vector2D(1, 0), width, deepth, focus, null, red);
-const shape5 = new Lense(new Vector2D(300, 360), new Vector2D(1, 0), 500, 0, 196, null, glass);
+const shape5 = new Lense(new Vector2D(500, 360), new Vector2D(0, 1), 300, 0, 196, null, glass);
 
 console.log(shape5.radius, shape5.delta)
 
@@ -213,8 +220,8 @@ marker.addPoint(536-7, 360);
 marker.tag = "marker";
 
 const laserSource = new LaserSource(new Vector2D(200, 340), new Vector2D(1, 0), 1);
-const laserSource2 = new LaserSource(new Vector2D(200, 380), new Vector2D(1, 0), 1);
-laserSource2.step *= -1;
+// const laserSource2 = new LaserSource(new Vector2D(200, 380), new Vector2D(1, 0), 1);
+// laserSource2.step *= -1;
 
 app.scene.addObject(marker);
 
@@ -231,7 +238,7 @@ app.scene.addObject(waterShape);
 // app.scene.addObject(topWall);
 
 app.scene.addSource(laserSource);
-app.scene.addSource(laserSource2);
+// app.scene.addSource(laserSource2);
 
 
 function mainLoop(timestamp) {

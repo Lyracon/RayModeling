@@ -16,7 +16,7 @@ export default class App {
 		// }
 		// this.scene.objects[0].setPosition(this.scene.sources[0].rayPath.rays[0].intersection.point);
 		this.scene.sources[0].move();
-		this.scene.sources[1].move();
+		// this.scene.sources[1].move();
 	}
 
 	draw() {
