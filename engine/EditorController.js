@@ -2,7 +2,7 @@
 import Vector2D from "../geometry/Vector2D.js";
 import Shape from "../geometry/Shape.js";
 
-import EditorSelection from "./editor/EditorSelection.js";
+import EditorSelection from "./Editor/EditorSelection.js";
 import Material from "../optics/Material.js";
 import LaserSource from "../optics/LaserSource.js";
 import Lense from "../optics/Lense.js";
