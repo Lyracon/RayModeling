@@ -1,25 +1,129 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>test</title>
-	<link rel="stylesheet" href="style.css">
-</head>
-<body>
-	<!-- <div class="editor">
-		<aside class="toolbox">
-			
-		</aside>
- -->
-		<div id="scene">
-			<canvas id='work-canvas'></canvas>
-		</div>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-		<!-- <aside class="inspector">
-			
-		</aside>
-	</div> -->
-	<script type="module" src="main.js"></script>
+    <title>Optics Editor</title>
+
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <main class="app">
+
+        <header class="top-bar">
+            <button class="top-bar__btn" type="button" data-action="file">
+                File
+            </button>
+
+            <button class="top-bar__btn" type="button" data-action="undo">
+                Undo
+            </button>
+
+            <button class="top-bar__btn" type="button" data-action="redo">
+                Redo
+            </button>
+
+            <button class="top-bar__btn" type="button" data-action="presets">
+                Presets
+            </button>
+
+        </header>
+
+
+        <section class="editor">
+
+            <!-- Левая панель инструментов -->
+            <aside
+                class="editor__toolbar"
+                id="toolbar"
+                aria-label="Инструменты"
+            >
+                <button
+                    class="tool-btn editor__tool-btn"
+                    type="button"
+                    data-tool="source"
+                >
+                    Src
+                </button>
+
+                <button
+                    class="tool-btn editor__tool-btn"
+                    type="button"
+                    data-tool="shape"
+                >
+                    Shp
+                </button>
+
+                <button
+                    class="tool-btn editor__tool-btn"
+                    type="button"
+                    data-tool="lens"
+                >
+                    Lns
+                </button>
+
+                <button
+                    class="tool-btn editor__tool-btn"
+                    type="button"
+                    data-tool="move"
+                >
+                    Mov
+                </button>
+
+                <button
+                    class="tool-btn editor__tool-btn"
+                    type="button"
+                    data-tool="select"
+                >
+                    Sel
+                </button>
+                
+            </aside>
+
+
+            <!-- Рабочая область -->
+            <section
+                class="editor__workspace"
+                id="scene"
+                aria-label="Рабочая область"
+            >
+                <canvas id="work-canvas"></canvas>
+            </section>
+
+
+            <!-- Инспектор выбранного объекта -->
+            <aside
+                class="editor__inspector"
+                id="inspector"
+                aria-label="Инспектор"
+            >
+                <div class="inspector__content" id="inspector-content">
+                    <!-- UI выбранного объекта появится здесь -->
+                </div>
+            </aside>
+
+
+            <!-- Нижняя строка состояния -->
+            <footer
+                class="editor__status"
+                id="status"
+            >
+                <!-- <span class="status__item" id="status-position">
+                    X: 0 Y: 0
+                </span>
+
+                <span class="status__item" id="status-zoom">
+                    Zoom: 100%
+                </span> -->
+            </footer>
+
+        </section>
+
+    </main>
+
+    <script type="module" src="./main.js"></script>
 </body>
 </html>
+```

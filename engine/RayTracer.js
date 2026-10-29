@@ -3,211 +3,259 @@ import Vector2D from "../geometry/Vector2D.js";
 import Intersection from "../geometry/Intersection.js";
 
 export default class RayTracer {
-	static EPSILON = 1e-9;
-	constructor({scene, maxBounces=10, minPower=0.01} = {}) {
-		this.scene = scene;
-		this.maxBounces = maxBounces;
-		this.minPower = minPower;
-	}
+    static EPSILON = 1e-9;
 
-	update(dt) {
-		for (const ray of this.scene.rays) {
-			this.trace(ray);
-		}
-	}
+    constructor({ scene, maxBounces = 50, minPower = 0.01 } = {}) {
+        this.scene = scene;
+        this.maxBounces = maxBounces;
+        this.minPower = minPower;
+    }
 
-	getAndUpdateMediums(mediums, object) {
-	   	let n1 = 1; 
-	   	let n2 = 1; 
+    getAndUpdateMediums(mediums, object, wavelength) {
+        const objectIndex = object.material.getRefractiveIndex(wavelength);
 
-    	for (const medium of mediums) {
-    		n1 *= medium.material.n;
-    	}
+        let n1 = 1;
 
-		const index = mediums.lastIndexOf(object);
-	    if (index !== -1) {
-	        n2 = n1/object.material.n;
-	        mediums.splice(object.material, 1);
+        for (const medium of mediums) {
+            n1 *= medium.material.getRefractiveIndex(wavelength);
+        }
 
-	    } else {
-	        n2 = n1 * object.material.n;
-			mediums.push(object);
-	    }
-		return {n1: n1, n2: n2};
-	}
+        const index = mediums.lastIndexOf(object);
 
-	traceRay(path, ray, mediums=[]) {
+        let n2;
 
-		path.add(ray);
+        if (index !== -1) {
+            n2 = n1 / objectIndex;
+            mediums.splice(index, 1);
+        } else {
+            n2 = n1 * objectIndex;
+            mediums.push(object);
+        }
 
-		this.findClosestIntersection(ray);
+        return { n1, n2 };
+    }
 
-		if (
-			ray.intersection.distance == Infinity ||
-			ray.power < this.minPower ||
-			ray.bounceCounter + 1 > this.maxBounces
-		) {
-			return;
-		} else {
+    traceRay(path, ray, mediums = []) {
+        path.add(ray);
 
-			const oldMediums = [...mediums];
-			const {n1, n2} = this.getAndUpdateMediums(mediums, ray.intersection.object);
-			const normal = ray.intersection.normal;
-			
-			const refractedRay = this.getRefractedRay(ray, normal, n1, n2);
-			const reflectedRay = this.getReflectedRay(ray, normal, n1, n2, refractedRay);
-			
+        this.findClosestIntersection(ray);
 
-			this.traceRay(path, reflectedRay, oldMediums);
-			if (refractedRay !== null) {
-				refractedRay.power = ray.power * ray.intersection.transmittance;
-				this.traceRay(path, refractedRay, [...mediums]);
-			}
+        if (
+            ray.intersection.distance === Infinity ||
+            ray.power < this.minPower ||
+            ray.bounceCounter + 1 > this.maxBounces
+        ) {
+            return;
+        }
 
-		}
-	}
+        const oldMediums = [...mediums];
 
-	tracePath(source) {
+        const { n1, n2 } = this.getAndUpdateMediums(
+            mediums,
+            ray.intersection.object,
+            ray.wavelength
+        );
 
-		let firstRay = new Ray(
-			source.position,
-			source.direction,
-			1, 0
-		)
-		this.traceRay(source.rayPath, firstRay, []);
-	}
+        const normal = ray.intersection.normal;
 
-	getReflectedRay(ray, normal, n1, n2, refractedRay) {
-		let dot = Vector2D.dot(ray.direction, normal);
+        const refractedRay = this.getRefractedRay(
+            ray,
+            normal,
+            n1,
+            n2
+        );
 
-		const originX = ray.intersection.point.x + normal.x * RayTracer.EPSILON;
-		const originY = ray.intersection.point.y + normal.y * RayTracer.EPSILON;
-		
-		const directionX = ray.direction.x - 2 * dot * normal.x;
-		const directionY = ray.direction.y - 2 * dot * normal.y;
+        const reflectedRay = this.getReflectedRay(
+            ray,
+            normal,
+            n1,
+            n2,
+            refractedRay
+        );
 
-		if (refractedRay !== null) {
-			let nx = normal.x; 
-			let ny = normal.y; 
+        this.traceRay(path, reflectedRay, oldMediums);
 
-			let cosA;
-			let cosB;
+        if (refractedRay !== null) {
+            refractedRay.power =
+                ray.power * ray.intersection.transmittance;
 
-			if (dot > 0) {
-				cosA = dot;
-				cosB = Vector2D.dot(refractedRay.direction, new Vector2D(-nx, -ny));
-			} else {
-				cosB = Vector2D.dot(refractedRay.direction, new Vector2D(-nx, -ny));
-				cosA = Vector2D.dot(ray.direction, new Vector2D(-nx, -ny));
-			}
+            refractedRay.intensity =
+                ray.intensity * ray.intersection.transmittance;
 
-			const Rs = (n1 * cosA - n2 * cosB) / (n1 * cosA + n2 * cosB);
-			const Rp = (n2 * cosA - n1 * cosB) / (n2 * cosA + n1 * cosB);
-			const R = (Rs*Rs + Rp*Rp) / 2;
+            this.traceRay(path, refractedRay, [...mediums]);
+        }
+    }
 
-			const power = ray.power * R;
-			ray.intersection.reflectance = R;
-			ray.intersection.transmittance = 1 - R;
+    tracePath(source) {
+        for (const spectralComponent of source.spectrum) {
+            const ray = new Ray(
+                {
+                    x: source.position.x,
+                    y: source.position.y
+                },
+                {
+                    x: source.direction.x,
+                    y: source.direction.y
+                },
+                source.power * spectralComponent.intensity,
+                0,
+                spectralComponent.wavelength,
+                spectralComponent.intensity
+            );
 
-			return new Ray(
-		        {x: originX, y: originY},
-		        {x: directionX, y: directionY},
-		        power,
-		        ray.bounceCounter + 1
-		    )
-		} else {
-			const power = ray.power;
-			ray.intersection.reflectance = 1;
-			ray.intersection.transmittance = 0;
+            this.traceRay(source.rayPath, ray, []);
+        }
+    }
 
-			return new Ray(
-		        {x: originX, y: originY},
-		        {x: directionX, y: directionY},
-		        power,
-		        ray.bounceCounter + 1
-		    )
-		}
-	};
+    getReflectedRay(ray, normal, n1, n2, refractedRay) {
+        const dot = Vector2D.dot(ray.direction, normal);
 
-	getRefractedRay(ray, normal, n1, n2) {
-		// console.log(ray, normal, n1, n2);
-		let dot = Vector2D.dot(ray.direction, normal);
-			
-		let nx = normal.x; 
-		let ny = normal.y; 
+        const originX =
+            ray.intersection.point.x + normal.x * RayTracer.EPSILON;
+        const originY =
+            ray.intersection.point.y + normal.y * RayTracer.EPSILON;
 
-		if (dot > 0) {
-			nx = -nx;
-			ny = -ny;
-			dot = -dot;
-		}
+        const directionX = ray.direction.x - 2 * dot * normal.x;
+        const directionY = ray.direction.y - 2 * dot * normal.y;
 
-		const refractiveIndex = n1/n2;
-		
-		const sinTheta1 = Math.abs(Vector2D.vec(ray.direction, normal));
-		const sinTheta2 = sinTheta1 * refractiveIndex;
+        let reflectance = 1;
 
-		if (sinTheta2 > 1) {
-			return null;
-		}
+        if (refractedRay !== null) {
+            let cosA;
+            let cosB;
 
-		const parallelToNormal = new Vector2D(dot * nx, dot * ny);
-		const tangent = new Vector2D(
-			ray.direction.x - parallelToNormal.x,
-			ray.direction.y - parallelToNormal.y,
-		);
+            if (dot > 0) {
+                cosA = dot;
+                cosB = Vector2D.dot(
+                    refractedRay.direction,
+                    new Vector2D(-normal.x, -normal.y)
+                );
+            } else {
+                cosB = Vector2D.dot(
+                    refractedRay.direction,
+                    new Vector2D(-normal.x, -normal.y)
+                );
+                cosA = Vector2D.dot(
+                    ray.direction,
+                    new Vector2D(-normal.x, -normal.y)
+                );
+            }
 
-		const cosTheta2 = Math.sqrt(1 - sinTheta2*sinTheta2);
+            const denominatorS = n1 * cosA + n2 * cosB;
+            const denominatorP = n2 * cosA + n1 * cosB;
 
-		const direction = new Vector2D();
+            const Rs = Math.abs(denominatorS) < 1e-12
+                ? 1
+                : (n1 * cosA - n2 * cosB) / denominatorS;
 
-		direction.x = refractiveIndex * tangent.x - cosTheta2 * nx;
-		direction.y = refractiveIndex * tangent.y - cosTheta2 * ny;
-		direction.normolize();
+            const Rp = Math.abs(denominatorP) < 1e-12
+                ? 1
+                : (n2 * cosA - n1 * cosB) / denominatorP;
 
-		const originX = ray.intersection.point.x - nx * RayTracer.EPSILON;
-		const originY = ray.intersection.point.y - ny * RayTracer.EPSILON;
+            reflectance = (Rs * Rs + Rp * Rp) / 2;
+        }
 
-		const power = ray.power;
+        ray.intersection.reflectance = reflectance;
+        ray.intersection.transmittance = 1 - reflectance;
 
-		return new Ray(
-	        {x: originX, y: originY},
-	        direction,
-	        power,
-	        ray.bounceCounter + 1
-	    )
-	};
+        return new Ray(
+            { x: originX, y: originY },
+            { x: directionX, y: directionY },
+            ray.power * reflectance,
+            ray.bounceCounter + 1,
+            ray.wavelength,
+            ray.intensity * reflectance
+        );
+    }
 
-	clear(source) {
-		source.rayPath.rays = [];
-	}
+    getRefractedRay(ray, normal, n1, n2) {
+        let dot = Vector2D.dot(ray.direction, normal);
 
-	findClosestIntersection(ray) {
-	    let closestIntersection = new Intersection();
+        let nx = normal.x;
+        let ny = normal.y;
 
-	    for (const object of this.scene.objects) {
-	        if (object.tag === "marker") {
-	            continue;
-	        }
+        if (dot > 0) {
+            nx = -nx;
+            ny = -ny;
+            dot = -dot;
+        }
 
-	        const intersection = object.getIntersection(ray);
+        const refractiveIndex = n1 / n2;
 
-	        if (intersection.distance === Infinity) {
-	            continue;
-	        }
+        const sinTheta1 = Math.abs(
+            Vector2D.vec(ray.direction, normal)
+        );
 
-	        if (
-	            intersection.distance < closestIntersection.distance
-	        ) {
-	            closestIntersection = intersection;
-	        }
-	    }
+        const sinTheta2 = sinTheta1 * refractiveIndex;
 
-	    ray.intersection = closestIntersection;
-	}
+        if (sinTheta2 > 1) {
+            return null;
+        }
 
+        const parallelToNormal = new Vector2D(
+            dot * nx,
+            dot * ny
+        );
 
-	processIntersection(ray, intersection) {
+        const tangent = new Vector2D(
+            ray.direction.x - parallelToNormal.x,
+            ray.direction.y - parallelToNormal.y
+        );
 
-	}
-} 
+        const cosTheta2 = Math.sqrt(1 - sinTheta2 * sinTheta2);
+
+        const direction = new Vector2D(
+            refractiveIndex * tangent.x - cosTheta2 * nx,
+            refractiveIndex * tangent.y - cosTheta2 * ny
+        );
+
+        direction.normalize();
+
+        const originX =
+            ray.intersection.point.x - nx * RayTracer.EPSILON;
+        const originY =
+            ray.intersection.point.y - ny * RayTracer.EPSILON;
+
+        return new Ray(
+            { x: originX, y: originY },
+            direction,
+            ray.power,
+            ray.bounceCounter + 1,
+            ray.wavelength,
+            ray.intensity
+        );
+    }
+
+    clear(source) {
+        source.rayPath.rays = [];
+    }
+
+    findClosestIntersection(ray) {
+        let closestIntersection = new Intersection();
+
+        for (const object of this.scene.objects) {
+            if (object.tag === "marker") {
+                continue;
+            }
+
+            const intersection = object.getIntersection(ray);
+
+            if (
+                intersection === null ||
+                intersection.distance === Infinity
+            ) {
+                continue;
+            }
+
+            if (intersection.distance < closestIntersection.distance) {
+                closestIntersection = intersection;
+            }
+        }
+
+        ray.intersection = closestIntersection;
+    }
+
+    processIntersection(ray, intersection) {
+        // Пока не используется.
+    }
+}

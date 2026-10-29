@@ -13,7 +13,7 @@ export default class Lense extends Shape {
         
         this.focusLegth = focusLegth;
 
-        direction.normolize();
+        direction.normalize();
         this.direction = direction;
      
         for (let i = 0; i < 4; i++) {
@@ -49,7 +49,7 @@ export default class Lense extends Shape {
         cI.y = I.y - circle.y;
 
         if (Vector2D.vec(cI, cA) <= 0 & Vector2D.vec(cI, cB) >= 0) {
-            cI.normolize();
+            cI.normalize();
             
             return new Intersection(
                 {x: 0, y: 0},
