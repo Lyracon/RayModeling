@@ -7,7 +7,6 @@ import Scene from "./engine/Scene.js";
 import App from "./engine/App.js";
 import LaserSource from "./optics/LaserSource.js";
 import Lense from "./optics/Lense.js";
-import UI from "../ui/UI.js";
 import EditorController from "./engine/EditorController.js";
 
 
@@ -24,12 +23,6 @@ const fixedDt = 1 / 60;
 let accumulator = 0;
 let previousTime = 0;
 
-const ui = new UI(
-	canvas,
-	toolbarElement,
-	insperctorElement,
-	statusElement
-);
 const app = new App(canvas, ctx);
 const editor = new EditorController(app, canvas);
 
